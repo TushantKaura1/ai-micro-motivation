@@ -5,10 +5,11 @@ load_dotenv()
 
 class Config:
     # OpenAI Configuration
-    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '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')
     
     # MongoDB Configuration
     MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/micro_motivation_db')
+    MONGO_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/micro_motivation_db')
     
     # Flask Configuration
     SECRET_KEY = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key-change-in-production')
