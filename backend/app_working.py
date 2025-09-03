@@ -227,7 +227,7 @@ def get_nudge():
         'mood': request.json.get('mood', 'neutral') if request.is_json else 'neutral',
         'streak': user_stats.get('streak', 0),
         'last_activity': last_activity['activity'] if last_activity else 'None',
-        'productivity_level': 'medium'  # Could be calculated from recent activity
+        'productivity_level': 'medium'
     }
     
     # Generate AI nudge
@@ -256,11 +256,6 @@ def get_daily_digest():
         'status': 'completed'
     }))
     
-    today_activities = list(mongo.db.activities.find({
-        'user_id': DEFAULT_USER_ID,
-        'timestamp': {'$gte': datetime.now().replace(hour=0, minute=0, second=0)}
-    }))
-    
     user_stats = mongo.db.user_stats.find_one({'user_id': DEFAULT_USER_ID})
     if not user_stats:
         user_stats = {'streak': 0, 'total_points': 0}
@@ -269,7 +264,7 @@ def get_daily_digest():
         'completed_tasks': [task['title'] for task in completed_tasks],
         'streak': user_stats.get('streak', 0),
         'points_earned': sum(task.get('points_value', 10) for task in completed_tasks),
-        'mood_trend': 'positive'  # Could be calculated from activities
+        'mood_trend': 'positive'
     }
     
     # Generate AI digest

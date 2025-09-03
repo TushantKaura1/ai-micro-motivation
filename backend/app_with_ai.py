@@ -21,7 +21,7 @@ openai.api_key = Config.OPENAI_API_KEY
 DEFAULT_USER_ID = "default_user_123"
 
 def generate_ai_nudge(user_context):
-    """Generate AI-powered nudge using ChatGPT with fallback"""
+    """Generate AI-powered nudge using ChatGPT"""
     try:
         prompt = f"""
         You are a supportive AI coach that helps people stay focused and motivated. 
@@ -49,19 +49,10 @@ def generate_ai_nudge(user_context):
         return response.choices[0].message.content.strip()
     except Exception as e:
         print(f"AI Error: {e}")
-        # Fallback motivational messages
-        fallback_messages = [
-            "Hey there! Ready to tackle your next micro-step? You've got this! 💪",
-            "Time for a quick win! What's one small thing you can do right now? ⚡",
-            "Your future self will thank you for taking action today! Let's go! 🚀",
-            "Every expert was once a beginner. Every pro was once an amateur. Keep going! 🌟",
-            "Success is the sum of small efforts repeated day in and day out. You're doing great! 💯"
-        ]
-        import random
-        return random.choice(fallback_messages)
+        return "Hey there! Ready to tackle your next micro-step? You've got this! 💪"
 
 def generate_ai_celebration(achievement, streak_count):
-    """Generate AI-powered celebration message with fallback"""
+    """Generate AI-powered celebration message"""
     try:
         prompt = f"Generate a short, enthusiastic celebration message for someone who just achieved: {achievement}. They have a {streak_count}-day streak. Make it feel exciting and motivating!"
         
@@ -78,10 +69,10 @@ def generate_ai_celebration(achievement, streak_count):
         return response.choices[0].message.content.strip()
     except Exception as e:
         print(f"AI Error: {e}")
-        return f"🎉 Amazing work! You completed '{achievement}' and you're on fire with that {streak_count}-day streak! Keep it up! 🔥"
+        return f"🎉 Amazing work! You're on fire with that {streak_count}-day streak! Keep it up! 🔥"
 
 def generate_ai_digest(user_data):
-    """Generate AI-powered daily digest with fallback"""
+    """Generate AI-powered daily digest"""
     try:
         prompt = f"""
         Create a daily digest story for a user with:
@@ -106,10 +97,7 @@ def generate_ai_digest(user_data):
         return response.choices[0].message.content.strip()
     except Exception as e:
         print(f"AI Error: {e}")
-        completed_count = len(user_data.get('completed_tasks', []))
-        points = user_data.get('points_earned', 0)
-        streak = user_data.get('streak', 0)
-        return f"Today was another step forward in your journey! You completed {completed_count} tasks and earned {points} points. Your {streak}-day streak is building momentum. Keep going! 🌟"
+        return "Today was another step forward in your journey! Every small action counts. Keep going! 🌟"
 
 # Routes
 @app.route('/api/tasks', methods=['GET'])
@@ -227,7 +215,7 @@ def get_nudge():
         'mood': request.json.get('mood', 'neutral') if request.is_json else 'neutral',
         'streak': user_stats.get('streak', 0),
         'last_activity': last_activity['activity'] if last_activity else 'None',
-        'productivity_level': 'medium'  # Could be calculated from recent activity
+        'productivity_level': 'medium'
     }
     
     # Generate AI nudge
@@ -256,11 +244,6 @@ def get_daily_digest():
         'status': 'completed'
     }))
     
-    today_activities = list(mongo.db.activities.find({
-        'user_id': DEFAULT_USER_ID,
-        'timestamp': {'$gte': datetime.now().replace(hour=0, minute=0, second=0)}
-    }))
-    
     user_stats = mongo.db.user_stats.find_one({'user_id': DEFAULT_USER_ID})
     if not user_stats:
         user_stats = {'streak': 0, 'total_points': 0}
@@ -269,7 +252,7 @@ def get_daily_digest():
         'completed_tasks': [task['title'] for task in completed_tasks],
         'streak': user_stats.get('streak', 0),
         'points_earned': sum(task.get('points_value', 10) for task in completed_tasks),
-        'mood_trend': 'positive'  # Could be calculated from activities
+        'mood_trend': 'positive'
     }
     
     # Generate AI digest
